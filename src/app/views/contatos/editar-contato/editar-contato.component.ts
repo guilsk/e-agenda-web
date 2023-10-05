@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormsContatoViewModel } from '../models/forms-contato.view-model';
-import { ContatosService } from '../services/contatos.service';
+import { Component } from '@angular/core'
+import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms'
+import { ActivatedRoute, Router } from '@angular/router'
+import { FormsContatoViewModel } from '../models/forms-contato.view-model'
+import { ContatosService } from '../services/contatos.service'
+import { ToastrService } from 'ngx-toastr'
 
 @Component({
   selector: 'app-editar-contato',
@@ -10,44 +11,62 @@ import { ContatosService } from '../services/contatos.service';
   styleUrls: ['./editar-contato.component.css'],
 })
 export class EditarContatoComponent {
-  form!: FormGroup;
-  contatoVM!: FormsContatoViewModel;
-  idSelecionado: string | null = null;
+  form!: FormGroup
+  contatoVM!: FormsContatoViewModel
+  idSelecionado: string | null = null
+  camposModificados = false
+  
+  nome = new FormControl('', [Validators.required])
+  email = new FormControl('',[Validators.required, Validators.email])
+  telefone = new FormControl('',[Validators.required])
+  cargo =  new FormControl('',[Validators.required])
+  empresa = new FormControl('',[Validators.required])
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private contatoService: ContatosService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
+  constructor(private formBuilder: FormBuilder, private contatoService: ContatosService, private router: Router, private route: ActivatedRoute, private toastService: ToastrService){}
 
   ngOnInit(): void {
     this.form = this.formBuilder.group({
-      nome: new FormControl(''),
-      email: new FormControl(''),
-      telefone: new FormControl(''),
-      cargo: new FormControl(''),
-      empresa: new FormControl(''),
-    });
+      nome: this.nome,
+      email: this.email,
+      telefone: this.telefone,
+      cargo: this.cargo,
+      empresa: this.empresa,
+    })
+    
+    this.idSelecionado = this.route.snapshot.paramMap.get('id')
 
-    this.idSelecionado = this.route.snapshot.paramMap.get('id');
+    if(!this.idSelecionado) return
 
-    if (!this.idSelecionado) return;
+    this.contatoService.selecionarPorId(this.idSelecionado).subscribe((res)=>{
+      this.form.patchValue(res)
+    })
 
-    this.contatoService.selecionarPorId(this.idSelecionado).subscribe((res) => {
-      this.form.patchValue(res);
-    });
+    this.camposModificados = false
+   
   }
 
   gravar() {
-    this.contatoVM = this.form.value;
-
-    this.contatoService
-      .editar(this.idSelecionado!, this.contatoVM)
-      .subscribe((res) => {
-        console.log(res);
-
-        this.router.navigate(['/contatos/listar']);
-      });
+    const campoModificado = Object.keys(this.form.controls).some((control) =>
+      this.form.get(control)?.dirty
+    )
+  
+    if (!campoModificado) {
+      this.toastService.warning('Nenhum campo foi modificado.')
+      console.log('Nenhum campo foi modificado.')
+      this.camposModificados = true
+      return
+    }
+  
+    if (this.form.invalid) {
+      console.log('Formulário inválido.')
+      return
+    }
+  
+    this.contatoVM = this.form.value
+  
+    this.contatoService.editar(this.idSelecionado!, this.contatoVM).subscribe((res) => {
+      console.log(res)
+      this.router.navigate(['/contatos/listar'])
+    })
   }
 }

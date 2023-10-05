@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { VisualizarContatoViewModel } from '../models/visualizar-contato.view-model';
 import { ContatosService } from '../services/contatos.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-excluir-contato',
@@ -15,7 +16,8 @@ export class ExcluirContatoComponent implements OnInit {
   constructor(
     private contatoService: ContatosService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private toastService: ToastrService
   ) {
     this.contatoVM = new VisualizarContatoViewModel('', '', '', '', '', '');
   }
@@ -36,5 +38,7 @@ export class ExcluirContatoComponent implements OnInit {
     this.contatoService.excluir(this.idSelecionado!).subscribe((res) => {
       this.router.navigate(['/contatos', 'listar']);
     });
+
+    this.toastService.warning('Nenhum campo foi modificado.')
   }
 }

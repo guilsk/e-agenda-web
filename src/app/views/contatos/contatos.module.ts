@@ -7,10 +7,12 @@ import { ListarContatosComponent } from './listar-contatos/listar-contatos.compo
 import { RouterModule } from '@angular/router';
 import { EditarContatoComponent } from './editar-contato/editar-contato.component';
 import { ExcluirContatoComponent } from './excluir-contato/excluir-contato.component';
+import { InputFormComponent } from 'src/app/core/input-form/input-form.component';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
 @NgModule({
-  declarations: [InserirContatoComponent, ListarContatosComponent, EditarContatoComponent, ExcluirContatoComponent],
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  providers: [ContatosService],
+  declarations: [InserirContatoComponent, ListarContatosComponent, EditarContatoComponent, ExcluirContatoComponent, InputFormComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, NgxMaskDirective],
+  providers: [ContatosService, provideNgxMask()],
 })
 export class ContatosModule {}

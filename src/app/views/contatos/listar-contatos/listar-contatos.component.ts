@@ -14,7 +14,9 @@ export class ListarContatosComponent implements OnInit {
 
   ngOnInit(): void {
     this.contatosService.selecionarTodos().subscribe((res) => {
-      this.contatos = res;
+      this.contatos = res.sort((a, b) => {
+        return a.nome.localeCompare(b.nome)
+      }) 
     });
   }
 }

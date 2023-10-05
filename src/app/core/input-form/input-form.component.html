@@ -1,0 +1,21 @@
+<input 
+  [formControl]="control"
+  [ngClass]="control.invalid && control.touched ? 'is-invalid' : ''" 
+  class="form-control" 
+  [type]="type"
+  [placeholder]="placeholder"
+  [dropSpecialCharacters]="false"
+  [mask]="isTelefone ? '(00) 0.0000-0000' : null" 
+/>
+
+<ng-container *ngIf="control.touched || control.dirty">
+  <div *ngIf="control.errors?.['required']" class="invalid-tooltip">
+    <span>O campo precisa ser preenchido.</span>
+  </div>
+  <div *ngIf="control.errors?.['minlength']" class="invalid-tooltip">
+    <span>O campo precisa ter pelo menos 3 caracteres.</span>
+  </div>
+  <div *ngIf="control.errors?.['email']" class="invalid-tooltip">
+    <span>Inserir um e-mail válido.</span>
+  </div>
+</ng-container>

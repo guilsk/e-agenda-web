@@ -5,6 +5,9 @@ import { InserirContatoComponent } from './views/contatos/inserir-contato/inseri
 import { ListarContatosComponent } from './views/contatos/listar-contatos/listar-contatos.component';
 import { EditarContatoComponent } from './views/contatos/editar-contato/editar-contato.component';
 import { ExcluirContatoComponent } from './views/contatos/excluir-contato/excluir-contato.component';
+import { InputFormComponent } from './core/input-form/input-form.component';
+import { ListarCompromissosComponent } from './views/compromissos/listar-compromissos/listar-compromissos.component';
+import { InserirCompromissoComponent } from './views/compromissos/inserir-compromisso/inserir-compromisso.component';
 
 const routes: Routes = [
   {
@@ -33,6 +36,22 @@ const routes: Routes = [
   {
     path: 'contatos/listar',
     component: ListarContatosComponent,
+  },
+  {
+    path: 'compromissos/inserir',
+    component: InserirCompromissoComponent,
+  },
+  {
+    path: 'compromissos/editar/:id',
+    component: EditarContatoComponent,
+  },
+  {
+    path: 'compromissos/excluir/:id',
+    component: ExcluirContatoComponent,
+  },
+  {
+    path: 'compromissos/listar',
+    component: ListarCompromissosComponent,
   },
 ];
 
