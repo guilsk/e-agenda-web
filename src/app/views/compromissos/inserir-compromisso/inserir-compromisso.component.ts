@@ -1,57 +1,83 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
+import { CompromissosService } from '../services/compromissos.service';
+import { ContatosService } from '../../contatos/services/contatos.service';
 import { ToastrService } from 'ngx-toastr';
-import { CompromissosService } from '../services/compromisso.service';
+import { Router } from '@angular/router';
 import { FormsCompromissoViewModel } from '../models/forms-compromisso.view-model';
+import { ListarContatoViewModel } from '../../contatos/models/listar-contato.view-model';
 
 @Component({
   selector: 'app-inserir-compromisso',
   templateUrl: './inserir-compromisso.component.html',
-  styleUrls: ['./inserir-compromisso.component.css']
+  styleUrls: ['./inserir-compromisso.component.css'],
 })
-export class InserirCompromissoComponent {
-  form!: FormGroup
-  compromissoVM!: FormsCompromissoViewModel
+export class InserirCompromissoComponent implements OnInit {
+  form?: FormGroup;
 
-  assunto = new FormControl('', [Validators.required, Validators.minLength(3)])
-  tipoCompromisso = new FormControl('',[Validators.required])
-  link = new FormControl('',[Validators.required, Validators.minLength(3)])
-  local =  new FormControl('',[Validators.required, Validators.minLength(3)])
-  data = new FormControl('',[Validators.required])
-  horaInicio = new FormControl('',[Validators.required])
-  horaFinal = new FormControl('',[Validators.required])
-  contato = new FormControl('',[Validators.required])
+  compromissoFormVM?: FormsCompromissoViewModel;
+  contatos: ListarContatoViewModel[] = [];
 
-  constructor(private formBuilder: FormBuilder, private compromissoService: CompromissosService, private router: Router, private toastrService: ToastrService){}
+  constructor(
+    private formBuilder: FormBuilder,
+    private compromissosService: CompromissosService,
+    private contatosService: ContatosService,
+    private toastrService: ToastrService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-      this.form = this.formBuilder.group({
-      assunto: this.assunto,
-      tipoCompromisso: this.tipoCompromisso,
-      link: this.link,
-      local: this.local,
-      horaInicio: this.horaInicio,
-      horaFinal: this.horaFinal,
-      contato: this.contato,
-    })
+    this.form = this.formBuilder.group({
+      assunto: new FormControl('', [
+        Validators.required,
+        Validators.minLength(3),
+      ]),
+      tipoLocal: new FormControl(0, [Validators.required]),
+      link: new FormControl(''),
+      local: new FormControl(''),
+      data: new FormControl('09/10/2023', [Validators.required]),
+      horaInicio: new FormControl('08:00', [Validators.required]),
+      horaTermino: new FormControl('09:00', [Validators.required]),
+      contatoId: new FormControl(''),
+    });
+
+    this.contatosService
+      .selecionarTodos()
+      .subscribe(
+        (contatosCadastrados) => (this.contatos = contatosCadastrados)
+      );
   }
 
   gravar() {
-    if (this.form.invalid) {
-      Object.keys(this.form.controls).forEach((campo) => {
-        this.form.get(campo)?.markAsTouched()
-      })
-      return 
+    if (this.form?.invalid) {
+      for (let erro of this.form.validate()) {
+        this.toastrService.warning(erro);
+      }
+
+      return;
     }
 
-    this.compromissoVM = this.form.value
+    this.compromissosService.inserir(this.form?.value).subscribe({
+      next: (res) => this.processarSucesso(res),
+      error: (err) => this.processarFalha(err),
+    });
+  }
 
-    this.compromissoService.inserir(this.compromissoVM).subscribe((res) => {
-      console.log(res)
-      this.toastrService.warning('Compromisso Inserido com Sucesso')
+  processarSucesso(res: FormsCompromissoViewModel) {
+    this.toastrService.success(
+      `O compromisso "${res.assunto}" foi salvo com sucesso!`,
+      'Sucesso'
+    );
 
-      this.router.navigate(['/compromissos/listar'])
-    })
+    this.router.navigate(['/compromissos', 'listar']);
+  }
+
+  processarFalha(erro: Error) {
+    this.toastrService.error(erro.message, 'Erro');
   }
 }

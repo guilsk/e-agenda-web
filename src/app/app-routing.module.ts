@@ -1,57 +1,65 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { NgModule, inject } from '@angular/core';
+import {
+  ActivatedRouteSnapshot,
+  CanActivateFn,
+  ResolveFn,
+  Router,
+  RouterModule,
+  Routes,
+  UrlTree,
+} from '@angular/router';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
-import { InserirContatoComponent } from './views/contatos/inserir-contato/inserir-contato.component';
-import { ListarContatosComponent } from './views/contatos/listar-contatos/listar-contatos.component';
-import { EditarContatoComponent } from './views/contatos/editar-contato/editar-contato.component';
-import { ExcluirContatoComponent } from './views/contatos/excluir-contato/excluir-contato.component';
-import { InputFormComponent } from './core/input-form/input-form.component';
-import { ListarCompromissosComponent } from './views/compromissos/listar-compromissos/listar-compromissos.component';
-import { InserirCompromissoComponent } from './views/compromissos/inserir-compromisso/inserir-compromisso.component';
+import { authGuard } from './core/auth/guards/auth.guard';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'login',
     pathMatch: 'full',
   },
   {
     path: 'dashboard',
     component: DashboardComponent,
+    canActivate: [authGuard],
   },
 
-  // Contatos
   {
-    path: 'contatos/inserir',
-    component: InserirContatoComponent,
+    path: 'contatos',
+    loadChildren: () =>
+      import('./views/contatos/contatos.module').then((m) => m.ContatosModule),
+    canActivate: [authGuard],
   },
+
   {
-    path: 'contatos/editar/:id',
-    component: EditarContatoComponent,
+    path: 'compromissos',
+    loadChildren: () =>
+      import('./views/compromissos/compromissos.module').then(
+        (m) => m.CompromissosModule
+      ),
+    canActivate: [authGuard],
   },
+
   {
-    path: 'contatos/excluir/:id',
-    component: ExcluirContatoComponent,
+    path: 'categorias',
+    loadChildren: () =>
+      import('./views/categorias/categorias.module').then(
+        (m) => m.CategoriasModule
+      ),
+    canActivate: [authGuard],
   },
+
   {
-    path: 'contatos/listar',
-    component: ListarContatosComponent,
+    path: 'despesas',
+    loadChildren: () =>
+      import('./views/despesas/despesas.module').then((m) => m.DespesasModule),
+    canActivate: [authGuard],
   },
+
   {
-    path: 'compromissos/inserir',
-    component: InserirCompromissoComponent,
-  },
-  {
-    path: 'compromissos/editar/:id',
-    component: EditarContatoComponent,
-  },
-  {
-    path: 'compromissos/excluir/:id',
-    component: ExcluirContatoComponent,
-  },
-  {
-    path: 'compromissos/listar',
-    component: ListarCompromissosComponent,
+    path: 'tarefas',
+    loadChildren: () =>
+      import('./views/tarefas/tarefas.module').then((m) => m.TarefasModule),
+    canActivate: [authGuard],
   },
 ];
 
